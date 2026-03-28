@@ -174,21 +174,32 @@ body {
   color: var(--lo);
 }
 
+.hour-uv {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-sec);
+}
+
+.uv-sig {
+  color: #d32f2f;
+}
+
 /* --- Significant highlights --- */
 .wind-sig {
   color: #e65100;
   font-weight: 700;
 }
 
-.cold-sig {
-  color: #1565c0;
+.wind-sig {
+  color: #d32f2f;
   font-weight: 700;
 }
 
 .hour-card .wind-sig {
-  color: #e65100;
+  color: #d32f2f;
   font-weight: 700;
 }
+
 
 .hour-card .cold-sig {
   color: #1565c0;

@@ -1,7 +1,7 @@
 (async function () {
   var url =
     "https://api.open-meteo.com/v1/forecast?" +
-    "forecast_days=2&latitude=43.70&longitude=-79.42" +
+    "forecast_days=10&latitude=43.70&longitude=-79.42" +
     "&hourly=temperature_2m,apparent_temperature,precipitation,precipitation_probability,snowfall,relative_humidity_2m,windspeed_10m,wind_gusts_10m,cloudcover,uv_index" +
     "&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset" +
     "&timezone=America%2FNew_York";
@@ -40,6 +40,19 @@
     return sn > 0 || (h.precipitation[i] > 0.1 && h.temperature_2m[i] < 1);
   }
 
+  function formatDate(dateStr) {
+    var date = new Date(dateStr + "T00:00:00");
+    var d = String(date.getDate()).padStart(2, "0");
+    var m = String(date.getMonth() + 1).padStart(2, "0");
+    var y = date.getFullYear();
+    return d + "." + m + "." + y;
+  }
+
+  function getDayName(dateStr) {
+    var date = new Date(dateStr + "T00:00:00");
+    return date.toLocaleDateString("en-US", { weekday: "long" });
+  }
+
   // --- Now ---
   var t = Math.round(h.temperature_2m[now]);
   var fl = Math.round(h.apparent_temperature[now]);
@@ -64,7 +77,7 @@
   // Wind
   var windEl = document.getElementById("now-wind");
   windEl.textContent = wi + " km/h";
-  if (wi >= 18) windEl.classList.add("sig-wind");
+  if (wi >= 20) windEl.classList.add("sig-wind");
 
   // --- Build hour card ---
   function makeCard(i, isNow, isToday) {
@@ -78,9 +91,12 @@
     var sn = h.snowfall ? h.snowfall[i] : 0;
     var wi = Math.round(h.windspeed_10m[i]);
     var pp = h.precipitation_probability[i];
-    var label = isNow ? "Now" : (i % 24) + ":00";
+    var uv = h.uv_index[i];
+    var nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+    var hourPadded = String(i % 24).padStart(2, "0") + ":00";
+    var label = isNow ? nowTime : hourPadded;
 
-    var windClass = (isToday && wi >= 18) ? " wind-sig" : "";
+    var windClass = (wi >= 20) ? " wind-sig" : "";
     var tempClass = (isToday && t <= -5) ? " cold-sig" : "";
 
     var rain = "";
@@ -94,13 +110,17 @@
       }
     }
 
+    var uvClass = uv >= 3 ? " uv-sig" : "";
+    var uvHtml = uv > 0 ? '<div class="hour-uv' + uvClass + '">UV ' + Math.round(uv) + '</div>' : "";
+
     div.innerHTML =
       '<div class="hour-time">' + label + '</div>' +
       '<div class="hour-emoji">' + emoji(cl, pr, t, sn) + '</div>' +
       '<div class="hour-temp' + tempClass + '">' + t + '\u00B0</div>' +
       '<div class="hour-detail">feels ' + fl + '\u00B0</div>' +
       '<div class="hour-detail' + windClass + '">' + wi + ' km/h</div>' +
-      rain;
+      rain +
+      uvHtml;
 
     return div;
   }
@@ -172,12 +192,43 @@
     notesEl.innerHTML = notes.map(function (n) { return '<div class="note">' + n + '</div>'; }).join("");
   }
 
-  // --- Tomorrow ---
-  document.getElementById("tmr-summary").textContent =
-    Math.round(d.temperature_2m_max[1]) + "\u00B0 / " + Math.round(d.temperature_2m_min[1]) + "\u00B0";
+  // --- Future Days ---
+  var futureContainer = document.getElementById("future-days");
+  for (var dayIdx = 1; dayIdx < 10; dayIdx++) {
+    var dateStr = d.time[dayIdx];
+    var hi = Math.round(d.temperature_2m_max[dayIdx]);
+    var lo = Math.round(d.temperature_2m_min[dayIdx]);
 
-  var tmrEl = document.getElementById("tmr-scroll");
-  for (var i = 24; i < 48 && i < h.temperature_2m.length; i++) {
-    tmrEl.appendChild(makeCard(i, false, false));
+    var section = document.createElement("section");
+    section.className = "card";
+    section.style.marginTop = "10px";
+
+    var label = document.createElement("div");
+    label.className = "section-label";
+    label.style.display = "flex";
+    label.style.justifyContent = "space-between";
+    
+    var leftLabel = document.createElement("span");
+    leftLabel.innerHTML = formatDate(dateStr) + " &mdash; " + hi + "\u00B0 / " + lo + "\u00B0";
+    
+    var rightLabel = document.createElement("span");
+    rightLabel.textContent = getDayName(dateStr);
+    rightLabel.style.color = "var(--text-sec)";
+    rightLabel.style.textTransform = "none";
+    rightLabel.style.fontWeight = "400";
+
+    label.appendChild(leftLabel);
+    label.appendChild(rightLabel);
+    section.appendChild(label);
+
+    var scroll = document.createElement("div");
+    scroll.className = "hour-scroll";
+    
+    for (var i = dayIdx * 24; i < (dayIdx + 1) * 24 && i < h.temperature_2m.length; i++) {
+      scroll.appendChild(makeCard(i, false, false));
+    }
+    
+    section.appendChild(scroll);
+    futureContainer.appendChild(section);
   }
 })();
