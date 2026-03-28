@@ -9,19 +9,31 @@
 </head>
 <body>
   <main id="app">
-    <section class="card now-card">
-      <div class="now-grid">
-        <div class="now-left">
-          <div id="now-emoji" class="now-emoji"></div>
-          <div id="now-desc" class="now-desc">--</div>
+    <section class="card now-hero">
+      <div class="now-row top">
+        <div id="now-temp" class="hero-temp">--</div>
+        <div class="hero-meta-col">
+          <div id="now-emoji" class="hero-emoji"></div>
+          <div id="now-desc" class="hero-desc">--</div>
         </div>
-        <div class="now-center">
-          <div id="now-temp" class="now-temp">--</div>
-          <div id="now-feels" class="now-feels">Feels --</div>
+        <div class="stat-group">
+          <div class="stat-lab">Feels</div>
+          <div id="now-feels" class="stat-val">--</div>
         </div>
-        <div class="now-right">
-          <div id="now-range" class="now-range">--</div>
-          <div id="now-wind" class="now-wind">--</div>
+      </div>
+
+      <div class="now-row bottom">
+        <div class="stat-group">
+          <div class="stat-lab">Range</div>
+          <div id="now-range" class="stat-val">--</div>
+        </div>
+        <div class="stat-group">
+          <div class="stat-lab">Wind</div>
+          <div id="now-wind" class="stat-val">--</div>
+        </div>
+        <div class="stat-group">
+          <div class="stat-lab">UV</div>
+          <div id="now-uv" class="stat-val">--</div>
         </div>
       </div>
     </section>

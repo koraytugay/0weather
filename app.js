@@ -61,23 +61,29 @@
   var sn = h.snowfall ? h.snowfall[now] : 0;
   var wi = Math.round(h.windspeed_10m[now]);
   var hu = h.relative_humidity_2m[now];
+  var uvNow = Math.round(h.uv_index[now]);
   var hiToday = Math.round(d.temperature_2m_max[0]);
   var loToday = Math.round(d.temperature_2m_min[0]);
 
   document.getElementById("now-temp").textContent = t + "\u00B0";
-  document.getElementById("now-feels").textContent = "Feels " + fl + "\u00B0";
+  document.getElementById("now-feels").textContent = fl + "\u00B0";
   document.getElementById("now-emoji").textContent = emoji(cl, pr, t, sn);
   document.getElementById("now-desc").textContent = desc(cl, pr, t, sn);
 
   // Range
   var rangeEl = document.getElementById("now-range");
   rangeEl.innerHTML = '<span class="lo">' + loToday + '\u00B0</span> / <span class="hi">' + hiToday + '\u00B0</span>';
-  if (hiToday >= 30 || loToday <= -5) rangeEl.classList.add("sig-range");
+  if (hiToday >= 30 || loToday <= -5) rangeEl.classList.add("sig-text");
 
   // Wind
   var windEl = document.getElementById("now-wind");
   windEl.textContent = wi + " km/h";
-  if (wi >= 20) windEl.classList.add("sig-wind");
+  if (wi >= 20) windEl.classList.add("sig-text");
+
+  // UV
+  var uvEl = document.getElementById("now-uv");
+  uvEl.textContent = uvNow;
+  if (uvNow >= 3) uvEl.style.color = "#ffcdd2";
 
   // --- Build hour card ---
   function makeCard(i, isNow, isToday) {

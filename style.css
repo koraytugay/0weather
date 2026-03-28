@@ -39,70 +39,85 @@ body {
   padding: 16px;
 }
 
-/* --- Now --- */
-.now-card {
-  background: var(--primary);
+/* --- Strict 3-Column Grid --- */
+.now-hero {
+  background: #00796b;
   color: #fff;
-  padding: 16px;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-radius: 4px;
 }
 
-.now-grid {
+.now-row {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   align-items: center;
-  gap: 0;
+  text-align: center;
 }
 
-.now-left {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
+.now-row.top {
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+  padding-bottom: 16px;
 }
 
-.now-emoji { font-size: 40px; line-height: 1; }
-.now-desc { font-size: 13px; font-weight: 500; opacity: 0.9; }
-
-.now-center {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.now-temp {
-  font-size: 72px;
+.hero-temp {
+  font-size: 56px;
   font-weight: 300;
   line-height: 1;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.04em;
 }
 
-.now-feels {
-  font-size: 15px;
-  font-weight: 400;
-  opacity: 0.8;
-  margin-top: 2px;
-}
-
-.now-right {
+.hero-meta-col {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 
-.now-range {
-  font-size: 20px;
-  font-weight: 500;
-  opacity: 0.95;
+.hero-emoji {
+  font-size: 48px;
+  line-height: 1;
 }
 
-.now-range .hi { color: #ffcdd2; }
-.now-range .lo { color: #b3e5fc; }
-
-.now-wind {
-  font-size: 18px;
+.hero-desc {
+  font-size: 14px;
   font-weight: 500;
   opacity: 0.9;
+}
+
+.hero-feels-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-lab {
+  font-size: 10px;
+  text-transform: uppercase;
+  font-weight: 700;
+  opacity: 0.7;
+  letter-spacing: 0.5px;
+}
+
+.stat-val {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.stat-val .hi { color: #ffcdd2; }
+.stat-val .lo { color: #b3e5fc; }
+
+.sig-text {
+  color: #ffcdd2;
+  font-weight: 800;
 }
 
 /* --- Section label --- */
