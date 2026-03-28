@@ -132,8 +132,59 @@
       '<div class="hour-detail' + windClass + '">' + wi + ' km/h</div>' +
       rain + uvHtml;
 
+    div.onclick = function() {
+      showModal(i, label, hourlyData);
+    };
+
     return div;
   }
+
+  function showModal(i, timeLabel, data) {
+    const overlay = document.getElementById("modal-overlay");
+    const t = Math.round(data.temperature_2m[i]);
+    const fl = Math.round(data.apparent_temperature[i]);
+    const cl = data.cloudcover[i];
+    const pr = data.precipitation[i];
+    const sn = data.snowfall ? data.snowfall[i] : 0;
+    const wi = Math.round(data.windspeed_10m[i]);
+    const gu = Math.round(data.wind_gusts_10m[i]);
+    const pp = data.precipitation_probability[i];
+    const hu = data.relative_humidity_2m[i];
+    const uv = data.uv_index[i];
+
+    document.getElementById("modal-time").textContent = timeLabel;
+    document.getElementById("modal-temp").textContent = t + "\u00B0";
+    document.getElementById("modal-emoji").textContent = emoji(cl, pr, t, sn);
+    document.getElementById("modal-desc").textContent = desc(cl, pr, t, sn);
+
+    const stats = [
+      { lab: "Feels Like", val: fl + "\u00B0" },
+      { lab: "Precip Prob", val: pp + "%" },
+      { lab: "Precip Amount", val: pr + " mm" },
+      { lab: "Wind Speed", val: wi + " km/h" },
+      { lab: "Wind Gusts", val: gu + " km/h" },
+      { lab: "Humidity", val: hu + "%" },
+      { lab: "Cloud Cover", val: cl + "%" },
+      { lab: "UV Index", val: Math.round(uv) }
+    ];
+
+    document.getElementById("modal-grid").innerHTML = stats.map(s => `
+      <div class="modal-stat">
+        <div class="modal-stat-lab">${s.lab}</div>
+        <div class="modal-stat-val">${s.val}</div>
+      </div>
+    `).join("");
+
+    overlay.style.display = "flex";
+  }
+
+  document.getElementById("modal-close").onclick = () => {
+    document.getElementById("modal-overlay").style.display = "none";
+  };
+  
+  document.getElementById("modal-overlay").onclick = (e) => {
+    if (e.target.id === "modal-overlay") document.getElementById("modal-overlay").style.display = "none";
+  };
 
   // --- Today ---
   var todayEl = document.getElementById("today-scroll");
@@ -195,22 +246,32 @@
         e.preventDefault();
         e.stopPropagation();
       }
-      if (scroll.style.display === "none") {
-        scroll.style.display = "flex";
-        if (scroll.children.length === 0) {
-          scroll.innerHTML = '<div style="padding:10px;font-size:12px">Loading...</div>';
-          try {
+      try {
+        if (scroll.style.display === "none") {
+          scroll.style.display = "flex";
+          if (scroll.children.length === 0) {
+            scroll.innerHTML = '<div style="padding:15px;font-size:12px;opacity:0.7">Loading hourly data...</div>';
             var dayUrl = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&start_date=${dateStr}&end_date=${dateStr}${HOURLY_PARAMS}&timezone=${TZ}`;
             var res = await fetch(dayUrl);
+            if (!res.ok) throw new Error("Fetch failed");
             var dayData = await res.json();
             scroll.innerHTML = "";
-            for (var i = 0; i < 24; i++) scroll.appendChild(makeCard(i, false, false, dayData.hourly));
-          } catch (e) {
-            scroll.innerHTML = '<div style="padding:10px;font-size:12px">Failed to load.</div>';
+            if (dayData && dayData.hourly) {
+              for (var i = 0; i < 24; i++) {
+                scroll.appendChild(makeCard(i, false, false, dayData.hourly));
+              }
+            } else {
+              throw new Error("Invalid data");
+            }
           }
+        } else {
+          scroll.style.display = "none";
         }
-      } else {
-        scroll.style.display = "none";
+      } catch (err) {
+        console.error("Day fetch error:", err);
+        scroll.innerHTML = '<div style="padding:15px;font-size:12px;color:#ffcdd2">Failed to load. Tap to retry.</div>';
+        // Ensure it stays visible so user sees the error
+        scroll.style.display = "flex";
       }
     };
     
