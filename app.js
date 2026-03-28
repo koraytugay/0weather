@@ -82,16 +82,13 @@
   document.getElementById("now-desc").textContent = desc(cl, pr, t, sn);
 
   var rangeEl = document.getElementById("now-range");
-  rangeEl.innerHTML = '<span class="lo">' + loToday + '\u00B0</span> / <span class="hi">' + hiToday + '\u00B0</span>';
-  if (hiToday >= 30 || loToday <= -5) rangeEl.classList.add("sig-text");
+  rangeEl.innerHTML = loToday + '\u00B0 / ' + hiToday + '\u00B0';
 
   var windEl = document.getElementById("now-wind");
   windEl.textContent = wi + " km/h";
-  if (wi >= 20) windEl.classList.add("sig-text");
 
   var uvEl = document.getElementById("now-uv");
   uvEl.textContent = uvNow;
-  if (uvNow >= 3) uvEl.style.color = "#ffcdd2";
 
   function makeCard(i, isNow, isToday, hourlyData) {
     var div = document.createElement("div");
@@ -193,7 +190,11 @@
       for (var i = 24; i < 48; i++) scroll.appendChild(makeCard(i, false, false, h));
     }
 
-    label.onclick = async function() {
+    label.onclick = async function(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
       if (scroll.style.display === "none") {
         scroll.style.display = "flex";
         if (scroll.children.length === 0) {
