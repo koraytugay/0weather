@@ -200,10 +200,14 @@ body {
 .section-label {
   font-size: 13px;
   font-weight: 500;
-  color: var(--primary);
-  text-transform: uppercase;
+  color: var(--text-sec);
   letter-spacing: 0.5px;
   margin-bottom: 12px;
+}
+
+.card-header-row {
+  display: flex;
+  justify-content: flex-start;
 }
 
 /* --- Hourly scroll --- */

@@ -6,16 +6,17 @@
 
   // Initial Fetch: 10 days of daily (for labels) + 2 days of hourly (for today/tomorrow)
   var dailyUrl = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&forecast_days=10&daily=temperature_2m_max,temperature_2m_min&timezone=${TZ}`;
-  var hourlyUrl = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&forecast_days=2${HOURLY_PARAMS}&timezone=${TZ}`;
+  var hourlyUrl = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&forecast_days=2${HOURLY_PARAMS}&current=temperature_2m,apparent_temperature,precipitation,snowfall,wind_speed_10m,cloud_cover&timezone=${TZ}`;
 
-  var h, d;
+  var h, d, curr;
   var now = new Date().getHours();
 
   try {
     const [dRes, hRes] = await Promise.all([fetch(dailyUrl), fetch(hourlyUrl)]);
     const [dData, hData] = await Promise.all([dRes.json(), hRes.json()]);
     d = dData.daily;
-    h = hData.hourly; // This only contains 2 days (0-47)
+    h = hData.hourly;
+    curr = hData.current;
   } catch (e) {
     console.error("Initial fetch failed:", e);
     document.getElementById("app").innerHTML = '<div class="card" style="text-align:center;padding:40px">Failed to load weather data.</div>';
@@ -23,8 +24,8 @@
   }
 
   function emoji(cloud, precip, temp, snow) {
-    if (snow > 0 || (precip > 0.1 && temp < 1)) return "\u2744\uFE0F";
-    if (precip > 0.1) return "\uD83C\uDF27\uFE0F";
+    if (snow > 0 || (precip > 0 && temp < 1)) return "\u2744\uFE0F";
+    if (precip > 0) return "\uD83C\uDF27\uFE0F";
     if (cloud > 80) return "\u2601\uFE0F";
     if (cloud > 50) return "\uD83C\uDF25\uFE0F";
     if (cloud > 20) return "\u26C5";
@@ -32,8 +33,8 @@
   }
 
   function desc(cloud, precip, temp, snow) {
-    if (snow > 0 || (precip > 0.1 && temp < 1)) return "Snow";
-    if (precip > 0.1) return "Rain";
+    if (snow > 0 || (precip > 0 && temp < 1)) return "Snow";
+    if (precip > 0) return "Rain";
     if (cloud > 80) return "Cloudy";
     if (cloud > 50) return "Mostly Cloudy";
     if (cloud > 20) return "Partly Cloudy";
@@ -42,12 +43,12 @@
 
   function isRainOrSnow(i, hourlyData) {
     var sn = hourlyData.snowfall ? hourlyData.snowfall[i] : 0;
-    return sn > 0 || hourlyData.precipitation[i] > 0.1;
+    return sn > 0 || hourlyData.precipitation[i] > 0;
   }
 
   function isSnow(i, hourlyData) {
     var sn = hourlyData.snowfall ? hourlyData.snowfall[i] : 0;
-    return sn > 0 || (hourlyData.precipitation[i] > 0.1 && hourlyData.temperature_2m[i] < 1);
+    return sn > 0 || (hourlyData.precipitation[i] > 0 && hourlyData.temperature_2m[i] < 1);
   }
 
   function formatDate(dateStr) {
@@ -64,12 +65,12 @@
   }
 
   // --- Now ---
-  var t = Math.round(h.temperature_2m[now]);
-  var fl = Math.round(h.apparent_temperature[now]);
-  var cl = h.cloudcover[now];
-  var pr = h.precipitation[now];
-  var sn = h.snowfall ? h.snowfall[now] : 0;
-  var wi = Math.round(h.windspeed_10m[now]);
+  var t = Math.round(curr.temperature_2m);
+  var fl = Math.round(curr.apparent_temperature);
+  var cl = curr.cloud_cover;
+  var pr = curr.precipitation;
+  var sn = curr.snowfall;
+  var wi = Math.round(curr.wind_speed_10m);
   var uvNow = Math.round(h.uv_index[now]);
   
   var todayHours = h.temperature_2m.slice(7, 23);
@@ -228,8 +229,8 @@
     label.style.display = "flex";
     label.style.justifyContent = "space-between";
     label.style.cursor = "pointer";
-    label.innerHTML = `<span style="flex:1;text-align:left">${lo} / ${hi}</span>
-                       <span style="flex:1;text-align:right;color:var(--text-sec);text-transform:none;font-weight:400">${getDayName(dateStr)}</span>`;
+    label.innerHTML = `<span style="flex:1;text-align:left;color:var(--text-sec);text-transform:none;font-weight:400">${getDayName(dateStr)}</span>
+                       <span style="flex:1;text-align:right">${lo} / ${hi}</span>`;
     section.appendChild(label);
 
     var scroll = document.createElement("div");
