@@ -228,8 +228,8 @@
     label.style.display = "flex";
     label.style.justifyContent = "space-between";
     label.style.cursor = "pointer";
-    label.innerHTML = `<span>${formatDate(dateStr)} &mdash; ${hi}\u00B0 / ${lo}\u00B0</span>
-                       <span style="color:var(--text-sec);text-transform:none;font-weight:400">${getDayName(dateStr)}</span>`;
+    label.innerHTML = `<span style="flex:1;text-align:left">${lo} / ${hi}</span>
+                       <span style="flex:1;text-align:right;color:var(--text-sec);text-transform:none;font-weight:400">${getDayName(dateStr)}</span>`;
     section.appendChild(label);
 
     var scroll = document.createElement("div");
