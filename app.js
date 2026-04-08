@@ -184,7 +184,7 @@
   };
   
   document.getElementById("modal-overlay").onclick = (e) => {
-    if (e.target.id === "modal-overlay") document.getElementById("modal-overlay").style.display = "none";
+    document.getElementById("modal-overlay").style.display = "none";
   };
 
   // --- Today ---
